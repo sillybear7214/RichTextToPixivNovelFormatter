@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WordToPixivNovel</title>
+    <title>Rich Text To Pixiv Novel Formatter</title>
     <style>
         .styled-textarea {
             width: 100%;
@@ -48,8 +48,15 @@
     <h2>Put the text below here.</h2>
     <div id="richTextArea" class="styled-textarea" contenteditable="true" onchange="onRichTextAreaUpdate()"></div>
 
-    <button onclick="processAndSubmit()" style="margin-top: 10px;" id="btnSubmit">Submit</button>
-    <button onclick="clearTextArea()" style="margin-top: 10px;">Clean</button>
+    <div style="margin-top: 10px;">
+        Replace thematic break with <input type="text" id="replaceHrWith" />
+    </div>
+
+    <div style="margin-top: 10px;">
+        <button onclick="processAndSubmit()" id="btnSubmit">Submit</button>
+        <button onclick="clearTextArea()">Clean</button>
+    </div>
+
 
     <h3>Result</h3>
     <div id="output" class="output-box"></div>
@@ -77,7 +84,11 @@
             const tagFontStyle = node.style.fontStyle;
             const tagFontWeight = node.style.fontWeight;
 
-            if (tagName === "br" || tagName === "hr") {
+            if(tagName === "hr"){
+                return document.querySelector('input[type=text]#replaceHrWith').value;
+            }
+
+            if (tagName === "br") {
                 return "\n";
             }
             if (tagName === "div" || tagName === "p") {
@@ -90,7 +101,6 @@
             if (tagName === "i" || tagName === "em" || tagFontStyle === 'italic') {
                 text = `[i:${text}]`;
             }
-
 
             return text.slice(text.length - 2, text.length - 1) !== "\n" ? `${text} ` : text;
         }
