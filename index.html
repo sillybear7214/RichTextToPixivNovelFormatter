@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WordToPixivNovel</title>
+    <style>
+        .styled-textarea {
+            width: 100%;
+            min-height: 150px;
+            max-height: 400px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-y: auto;
+            box-sizing: border-box;
+            background-color: #fff;
+        }
+
+        /* Adds a subtle focus outline matching modern browser forms */
+        .styled-textarea:focus {
+            outline: none;
+            border-color: #4A90E2;
+            box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+        }
+
+        .output-box {
+            width: 100%;
+            min-height: 150px;
+            max-height: 400px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-y: auto;
+            box-sizing: border-box;
+            background-color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Put the text below here.</h2>
+    <div id="richTextArea" class="styled-textarea" contenteditable="true" onchange="onRichTextAreaUpdate()"></div>
+
+    <button onclick="processAndSubmit()" style="margin-top: 10px;" id="btnSubmit">Submit</button>
+    <button onclick="clearTextArea()" style="margin-top: 10px;">Clean</button>
+
+    <h3>Result</h3>
+    <div id="output" class="output-box"></div>
+    <button onclick="copyToClipboard()" style="margin-top: 10px;">Copy</button>
+
+    <script>
+        let finalResult = '';
+
+        /**
+         * @param {Node} node
+         * @returns {string}
+         */
+        function parseNodes(node) {
+            if (node.nodeType === Node.TEXT_NODE) {
+                return node.nodeValue;
+            }
+
+            let text = "";
+
+            node.childNodes.forEach(child => {
+                text += parseNodes(child);
+            });
+
+            const tagName = node.tagName ? node.tagName.toLowerCase() : "";
+            const tagFontStyle = node.style.fontStyle;
+            const tagFontWeight = node.style.fontWeight;
+
+            if (tagName === "br" || tagName === "hr") {
+                return "\n";
+            }
+            if (tagName === "div" || tagName === "p") {
+                return (text ? "\n" + text : "\n") + "\n";
+            }
+
+            if (tagName === "b" || tagName === "strong" || tagFontWeight !== '') {
+                text = `[b:${text}]`;
+            }
+            if (tagName === "i" || tagName === "em" || tagFontStyle === 'italic') {
+                text = `[i:${text}]`;
+            }
+
+
+            return text.slice(text.length - 2, text.length - 1) !== "\n" ? `${text} ` : text;
+        }
+
+        function processAndSubmit() {
+            const editableDiv = document.getElementById('richTextArea');
+
+            finalResult = parseNodes(editableDiv).trim();
+
+            document.getElementById('output').innerText = finalResult;
+        }
+
+        function clearTextArea() {
+            document.getElementById('richTextArea').innerHTML = '';
+        }
+
+        function copyToClipboard() {
+            if (!finalResult) return;
+            navigator.clipboard.writeText(finalResult);
+        }
+    </script>
+
+</body>
+
+</html>
