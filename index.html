@@ -46,7 +46,7 @@
 
 <body>
     <h2>Put the text below here.</h2>
-    <div id="richTextArea" class="styled-textarea" contenteditable="true" onchange="onRichTextAreaUpdate()"></div>
+    <div id="richTextArea" class="styled-textarea" contenteditable="true"></div>
 
     <div style="margin-top: 10px;">
         Replace thematic break with <input type="text" id="replaceHrWith" />
@@ -60,10 +60,21 @@
 
     <h3>Result</h3>
     <div id="output" class="output-box"></div>
-    <button onclick="copyToClipboard()" style="margin-top: 10px;">Copy</button>
+    <button id="copy" onclick="copyToClipboard(this)" style="margin-top: 10px;">Copy</button>
 
     <script>
         let finalResult = '';
+        new MutationObserver(function(r,o){
+            document.getElementById('copy').innerText = 'Copy';
+        }).observe(document.getElementById('richTextArea'), {attributes:true,subtree:true,childList:true,characterData:true});
+        /**
+         * @param {string} fontWeight
+         * @returns {boolean}
+         */
+        function isFontWeightBold(fontWeight){
+            console.log(fontWeight - 0);
+            return fontWeight === 'bold' || (fontWeight - 0) >= 600
+        }
 
         /**
          * @param {Node} node
@@ -95,7 +106,7 @@
                 return (text ? "\n" + text : "\n") + "\n";
             }
 
-            if (tagName === "b" || tagName === "strong" || tagFontWeight !== '') {
+            if (tagName === "b" || tagName === "strong" || isFontWeightBold(tagFontWeight)) {
                 text = `[b:${text}]`;
             }
             if (tagName === "i" || tagName === "em" || tagFontStyle === 'italic') {
@@ -111,15 +122,18 @@
             finalResult = parseNodes(editableDiv).trim();
 
             document.getElementById('output').innerText = finalResult;
+            document.getElementById('copy').innerText = 'Copy';
         }
 
         function clearTextArea() {
             document.getElementById('richTextArea').innerHTML = '';
+            document.getElementById('copy').innerText = 'Copy';
         }
 
-        function copyToClipboard() {
+        function copyToClipboard(el) {
             if (!finalResult) return;
             navigator.clipboard.writeText(finalResult);
+            document.getElementById('copy').innerText = 'Copied';
         }
     </script>
 
