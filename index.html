@@ -4,139 +4,298 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rich Text To Pixiv Novel Formatter</title>
+    <title>RichText-to-Pixiv Novel Formatter</title>
     <style>
+        :root {
+            font-family: Arial, sans-serif;
+            --primary-color: #0096fa;
+            --primary-color-hover: #1fa3fb;
+            --primary-color-pressed: #33abfb;
+        }
+
+        body {
+            box-sizing: border-box;
+            padding: 0;
+            margin: 0;
+            width: 100vw;
+            height: 100vh;
+            max-width: 100vw;
+            max-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        body>* {
+            padding: 0;
+            margin: 0;
+        }
+
+        body>nav {
+            box-sizing: border-box;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 14px;
+            user-select: none;
+        }
+
+        body>main {
+            flex-grow: 2;
+            position: relative;
+        }
+
+        body h1,
+        body h2 {
+            margin: 0;
+            padding: 0;
+            user-select: none;
+        }
+
+        body button {
+            user-select: none;
+            border: none;
+            border-radius: 24px;
+            font-size: 1em;
+            color: white;
+            background-color: var(--primary-color);
+            padding: 8px;
+            min-width: 96px;
+        }
+
+        body button:hover {
+            background-color: var(--primary-color-hover);
+        }
+
+        body button:active {
+            background-color: var(--primary-color-pressed);
+        }
+
+        body input[type=text] {
+            padding: 8px;
+            min-width: 180px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+
+        body input[type=text]:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: inset 0 0 10px rgba(74, 144, 226, 0.3);
+        }
+
         .styled-textarea {
             width: 100%;
-            min-height: 150px;
-            max-height: 400px;
             padding: 12px;
             border: 1px solid #ccc;
-            border-radius: 4px;
             font-family: Arial, sans-serif;
             font-size: 14px;
             line-height: 1.6;
-            overflow-y: auto;
+            overflow-y: scroll;
             box-sizing: border-box;
             background-color: #fff;
         }
 
-        /* Adds a subtle focus outline matching modern browser forms */
         .styled-textarea:focus {
             outline: none;
-            border-color: #4A90E2;
-            box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+            border-color: var(--primary-color);
+            box-shadow: inset 0 0 10px rgba(74, 144, 226, 0.3);
         }
 
-        .output-box {
+        .screen {
+            display: flex;
+            flex-direction: row;
             width: 100%;
-            min-height: 150px;
-            max-height: 400px;
-            padding: 12px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 14px;
-            line-height: 1.6;
-            overflow-y: auto;
-            box-sizing: border-box;
-            background-color: #fff;
+            height: 100%;
+        }
+
+        .screen>* {
+            width: 50%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .screen>*>:last-child {
+            position: relative;
+            flex-grow: 2;
+        }
+
+        .screen>*>:last-child>* {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .screen>:first-child h2 {
+            padding: 8px 10px;
+        }
+
+        .screen>:last-child h2 {
+            padding: 8px 10px 8px 0;
+        }
+
+        .screen>:first-child button {
+            margin: 0 10px 8px 10px;
+        }
+
+        .screen>:last-child button {
+            margin: 0 10px 8px 0;
+        }
+
+        @media (max-width: 720px) {
+            .screen {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+                height: 100%;
+            }
+
+            .screen>* {
+                height: 50%;
+                width: 100%;
+                display: flex;
+                flex-direction: column;
+            }
+
+            .screen>:last-child h2 {
+                padding: 8px 10px;
+            }
+
+            .screen>:last-child button {
+                margin: 0 10px 8px 10px;
+            }
+        }
+
+        .text-input-with-title{
+            position: relative;
+        }
+
+        .text-input-with-title>input[type=text]+*{
+            position: absolute;
+            top: -1.05em;
+            left: 6px;
+            font-size: .8em;
+            background-color: white;
+            user-select: none;
+
         }
     </style>
 </head>
 
 <body>
-    <h2>Put the text below here.</h2>
-    <div id="richTextArea" class="styled-textarea" contenteditable="true"></div>
-
-    <div style="margin-top: 10px;">
-        Replace thematic break with <input type="text" id="replaceHrWith" />
-    </div>
-
-    <div style="margin-top: 10px;">
-        <button onclick="processAndSubmit()" id="btnSubmit">Submit</button>
-        <button onclick="clearTextArea()">Clean</button>
-    </div>
-
-
-    <h3>Result</h3>
-    <div id="output" class="output-box"></div>
-    <button id="copy" onclick="copyToClipboard(this)" style="margin-top: 10px;">Copy</button>
+    <nav>
+        <h1>RichText-to-Pixiv Novel Formatter</h1>
+    </nav>
+    <main>
+        <div class="screen">
+            <div>
+                <h2>Input</h2>
+                <div>
+                    <button id="clearBtn">Clear</button>
+                    <label class="text-input-with-title">
+                        <input type="text" id="replaceHrWith" placeholder="Replace with..."/>
+                        <span>Thematic Break</span>
+                    </label>
+                </div>
+                <div>
+                    <div id="inputArea" class="styled-textarea" contenteditable="true"></div>
+                </div>
+            </div>
+            <div>
+                <h2>Result</h2>
+                <div>
+                    <button id="copyBtn">Copy</button>
+                </div>
+                <div>
+                    <div id="outputArea" class="styled-textarea"></div>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <script>
-        let finalResult = '';
-        new MutationObserver(function(r,o){
-            document.getElementById('copy').innerText = 'Copy';
-        }).observe(document.getElementById('richTextArea'), {attributes:true,subtree:true,childList:true,characterData:true});
-        /**
-         * @param {string} fontWeight
-         * @returns {boolean}
-         */
-        function isFontWeightBold(fontWeight){
-            console.log(fontWeight - 0);
-            return fontWeight === 'bold' || (fontWeight - 0) >= 600
-        }
+        (() => {
+            let finalResult = '';
+            const inputArea = document.getElementById('inputArea');
+            const outputArea = document.getElementById('outputArea');
+            const copyBtn = document.getElementById('copyBtn');
+            const clearBtn = document.getElementById('clearBtn');
+            const replaceHrWithTextBox = document.getElementById('replaceHrWith');
 
-        /**
-         * @param {Node} node
-         * @returns {string}
-         */
-        function parseNodes(node) {
-            if (node.nodeType === Node.TEXT_NODE) {
-                return node.nodeValue;
+            new MutationObserver(function (r, o) {
+                submit();
+            }).observe(inputArea, { attributes: true, subtree: true, childList: true, characterData: true });
+            replaceHrWithTextBox.addEventListener('input', submit);
+            clearBtn.addEventListener('click', clearTextArea);
+            copyBtn.addEventListener('click', copyToClipboard);
+
+            /**
+             * @param {string} fontWeight
+             * @returns {boolean}
+             */
+            function isFontWeightBold(fontWeight) {
+                console.log(fontWeight - 0);
+                return fontWeight === 'bold' || (fontWeight - 0) >= 600
             }
 
-            let text = "";
+            /**
+             * @param {Node} node
+             * @returns {string}
+             */
+            function parseNodes(node) {
+                if (node.nodeType === Node.TEXT_NODE) {
+                    return node.nodeValue;
+                }
 
-            node.childNodes.forEach(child => {
-                text += parseNodes(child);
-            });
+                let text = "";
 
-            const tagName = node.tagName ? node.tagName.toLowerCase() : "";
-            const tagFontStyle = node.style.fontStyle;
-            const tagFontWeight = node.style.fontWeight;
+                node.childNodes.forEach(child => {
+                    text += parseNodes(child);
+                });
 
-            if(tagName === "hr"){
-                return document.querySelector('input[type=text]#replaceHrWith').value;
+                const tagName = node.tagName ? node.tagName.toLowerCase() : "";
+                const tagFontStyle = node.style.fontStyle;
+                const tagFontWeight = node.style.fontWeight;
+
+                if (tagName === "hr") {
+                    return replaceHrWithTextBox.value;
+                }
+
+                if (tagName === "br") {
+                    return "\n";
+                }
+                if (tagName === "div" || tagName === "p") {
+                    return (text ? "\n" + text : "\n") + "\n";
+                }
+
+                if (tagName === "b" || tagName === "strong" || isFontWeightBold(tagFontWeight)) {
+                    text = `[b:${text}]`;
+                }
+                if (tagName === "i" || tagName === "em" || tagFontStyle === 'italic') {
+                    text = `[i:${text}]`;
+                }
+
+                return text.slice(text.length - 2, text.length - 1) !== "\n" ? `${text} ` : text;
             }
 
-            if (tagName === "br") {
-                return "\n";
-            }
-            if (tagName === "div" || tagName === "p") {
-                return (text ? "\n" + text : "\n") + "\n";
-            }
+            function submit() {
+                finalResult = parseNodes(inputArea).trim();
 
-            if (tagName === "b" || tagName === "strong" || isFontWeightBold(tagFontWeight)) {
-                text = `[b:${text}]`;
-            }
-            if (tagName === "i" || tagName === "em" || tagFontStyle === 'italic') {
-                text = `[i:${text}]`;
+                outputArea.innerText = finalResult;
+                copyBtn.innerText = 'Copy';
             }
 
-            return text.slice(text.length - 2, text.length - 1) !== "\n" ? `${text} ` : text;
-        }
+            function clearTextArea() {
+                inputArea.innerHTML = '';
+                copyBtn.innerText = 'Copy';
+            }
 
-        function processAndSubmit() {
-            const editableDiv = document.getElementById('richTextArea');
-
-            finalResult = parseNodes(editableDiv).trim();
-
-            document.getElementById('output').innerText = finalResult;
-            document.getElementById('copy').innerText = 'Copy';
-        }
-
-        function clearTextArea() {
-            document.getElementById('richTextArea').innerHTML = '';
-            document.getElementById('copy').innerText = 'Copy';
-        }
-
-        function copyToClipboard(el) {
-            if (!finalResult) return;
-            navigator.clipboard.writeText(finalResult);
-            document.getElementById('copy').innerText = 'Copied';
-        }
+            function copyToClipboard(el) {
+                if (!finalResult) return;
+                navigator.clipboard.writeText(finalResult);
+                copyBtn.innerText = 'Copied!';
+            }
+        })();
     </script>
-
 </body>
 
 </html>
