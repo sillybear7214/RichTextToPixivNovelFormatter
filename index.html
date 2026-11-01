@@ -2,8 +2,12 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Format your rich text to be compatible with Pixiv Novel." />
+    <meta name="keywords" content="Pixiv, novel, web novel, formatter, novel formatter" />
+    <meta name="theme-color" content="#0096fa" />
+    <meta name="author" content="SillyBear7214" />
     <title>RichText-to-Pixiv Novel Formatter</title>
     <style>
         :root {
@@ -82,22 +86,11 @@
             box-shadow: inset 0 0 10px rgba(74, 144, 226, 0.3);
         }
 
-        .styled-textarea {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ccc;
-            font-family: Arial, sans-serif;
-            font-size: 14px;
-            line-height: 1.6;
-            overflow-y: scroll;
-            box-sizing: border-box;
-            background-color: #fff;
-        }
-
-        .styled-textarea:focus {
-            outline: none;
-            border-color: var(--primary-color);
-            box-shadow: inset 0 0 10px rgba(74, 144, 226, 0.3);
+        noscript {
+            color: #fff;
+            background-color: #fe0000;
+            text-align: center;
+            padding: 10px;
         }
 
         .screen {
@@ -165,23 +158,58 @@
             }
         }
 
-        .text-input-with-title{
+        .styled-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            font-family: Arial, sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            overflow-y: scroll;
+            box-sizing: border-box;
+            background-color: #fff;
+        }
+
+        .styled-textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: inset 0 0 10px rgba(74, 144, 226, 0.3);
+        }
+
+        .styled-textarea:empty::before{
+            color: #676767;
+            user-select: none;
+        }
+
+        .styled-textarea.input-area:empty::before{
+            content: "Input your text here...";
+        }
+
+        .styled-textarea.output-area:empty::before{
+            content: "And it will generate Pixiv-novel-compatible text right here.";
+        }
+
+        .text-input-with-title {
             position: relative;
         }
 
-        .text-input-with-title>input[type=text]+*{
+        .text-input-with-title::after {
             position: absolute;
             top: -1.05em;
             left: 6px;
             font-size: .8em;
             background-color: white;
             user-select: none;
+        }
 
+        .text-input-with-title.replace-horizontal-line-container::after {
+            content: "Horizontal Line";
         }
     </style>
 </head>
 
 <body>
+    <noscript>This page requires JavaScript enabling to be able to functionally work</noscript>
     <nav>
         <h1>RichText-to-Pixiv Novel Formatter</h1>
     </nav>
@@ -191,13 +219,12 @@
                 <h2>Input</h2>
                 <div>
                     <button id="clearBtn">Clear</button>
-                    <label class="text-input-with-title">
-                        <input type="text" id="replaceHrWith" placeholder="Replace with..."/>
-                        <span>Thematic Break</span>
+                    <label class="text-input-with-title replace-horizontal-line-container">
+                        <input type="text" id="replaceHrWith" placeholder="Replace with..." />
                     </label>
                 </div>
                 <div>
-                    <div id="inputArea" class="styled-textarea" contenteditable="true"></div>
+                    <div id="inputArea" class="styled-textarea input-area" contenteditable="true"></div>
                 </div>
             </div>
             <div>
@@ -206,7 +233,7 @@
                     <button id="copyBtn">Copy</button>
                 </div>
                 <div>
-                    <div id="outputArea" class="styled-textarea"></div>
+                    <div id="outputArea" class="styled-textarea output-area"></div>
                 </div>
             </div>
         </div>
@@ -233,7 +260,6 @@
              * @returns {boolean}
              */
             function isFontWeightBold(fontWeight) {
-                console.log(fontWeight - 0);
                 return fontWeight === 'bold' || (fontWeight - 0) >= 600
             }
 
@@ -280,7 +306,12 @@
             function submit() {
                 finalResult = parseNodes(inputArea).trim();
 
-                outputArea.innerText = finalResult;
+                if (finalResult) {
+                    outputArea.innerText = finalResult;
+                } else {
+                    inputArea.innerHTML = outputArea.innerHTML = '';
+                }
+
                 copyBtn.innerText = 'Copy';
             }
 
