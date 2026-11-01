@@ -295,10 +295,10 @@
                 }
 
                 if (tagName === "b" || tagName === "strong" || isFontWeightBold(tagFontWeight)) {
-                    text = `[b:${text}]`;
+                    text = !text.match(/^\[b\:.*\]/g) ? `[b:${text}]` : text;
                 }
                 if (tagName === "i" || tagName === "em" || tagFontStyle === 'italic') {
-                    text = `[i:${text}]`;
+                    text = !text.match(/^\[i\:.*\]/g) ? `[i:${text}]` : text;
                 }
                 if (tagName === "div" || tagName === "p") {
                     text = (text ? "\n" + text : "\n") + "\n";
