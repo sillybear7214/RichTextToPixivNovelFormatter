@@ -260,14 +260,14 @@
              * @returns {boolean}
              */
             function isFontWeightBold(fontWeight) {
-                return fontWeight === 'bold' || (fontWeight - 0) >= 600
+                return fontWeight === 'bold' || (fontWeight - 0) >= 600;
             }
 
             /**
              * @param {Node} node
              * @returns {string}
              */
-            function parseNodes(node) {
+            function parseNodes(node) { 
                 if (node.nodeType === Node.TEXT_NODE) {
                     return node.nodeValue;
                 }
@@ -279,18 +279,15 @@
                 });
 
                 const tagName = node.tagName ? node.tagName.toLowerCase() : "";
-                const tagFontStyle = node.style.fontStyle;
-                const tagFontWeight = node.style.fontWeight;
+                const tagStyle = node.style;
+                const tagFontStyle = tagStyle ? tagStyle.fontStyle : '';
+                const tagFontWeight = tagStyle ? tagStyle.fontWeight : '';
 
                 if (tagName === "hr") {
                     return replaceHrWithTextBox.value;
                 }
-
                 if (tagName === "br") {
                     return "\n";
-                }
-                if (tagName === "div" || tagName === "p") {
-                    return (text ? "\n" + text : "\n") + "\n";
                 }
 
                 if (tagName === "b" || tagName === "strong" || isFontWeightBold(tagFontWeight)) {
@@ -298,6 +295,9 @@
                 }
                 if (tagName === "i" || tagName === "em" || tagFontStyle === 'italic') {
                     text = `[i:${text}]`;
+                }
+                if (tagName === "div" || tagName === "p") {
+                    text = (text ? "\n" + text : "\n") + "\n";
                 }
 
                 return text.slice(text.length - 2, text.length - 1) !== "\n" ? `${text} ` : text;
