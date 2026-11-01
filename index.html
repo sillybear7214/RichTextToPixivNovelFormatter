@@ -288,39 +288,36 @@
                 const tagFontWeight = tagStyle ? tagStyle.fontWeight : '';
 
                 if (tagName === "hr") {
-                    return ('\n' + (replaceHrWithTextBox.value || '') + '\n').replace(/^\n\n$/g,'');
+                    return ('\n' + (replaceHrWithTextBox.value || '') + '\n').replace(/^\n\n$/g, '');
                 }
                 if (tagName === "br") {
                     return "\n";
                 }
 
-                text = text.trim();
+                // text = text.trim();
 
                 if (tagName === "b" || tagName === "strong" || isFontWeightBold(tagFontWeight)) {
-                    text = !text.match(/^\[b\:.*\]$/g) ? `[b:${text}]` : text;
+                    text = text.match(/^\[b:(.|\n)*\]$/g) ? text : `[b:${text}]`;
                 }
                 if (tagName === "i" || tagName === "em" || tagFontStyle === 'italic') {
-                    text = !text.match(/^\[i\:.*\]$/g) ? `[i:${text}]` : text;
+                    text = text.match(/^\[i:(.|\n)*\]$/g) ? text : `[i:${text}]`;
                 }
                 if (tagName === "div" || tagName === "p") {
                     text = (text ? "\n" + text : "\n") + "\n";
                 }
 
                 return text || '';
-
-                // return text.slice(text.length - 2, text.length - 1) !== "\n" ? `${text} ` : text;
             }
 
             function submit() {
-                finalResult = parseNodes(inputArea).trim();
-
-                finalResult = finalResult
-                .replace(/\[i\:\s+/g, '[i:')
-                .replace(/\[b\:\s+/g, '[b:')
-                .replace(/\]\s*\]/g,']]')
-                .replace(/\[[ib]\:\s*]/g, '')
-                .replace(/\[[ib]\:\s*]/g, '')
-                .replace(/\n\n+/g, '\n\n');
+                finalResult = parseNodes(inputArea).trim()
+                    // .replace(/\[i\:\s+/g, '[i:')
+                    // .replace(/\[b\:\s+/g, '[b:')
+                    // .replace(/\]\s*\]/g,']]')
+                    // .replace(/\[[ib]\:\s*]/g, '')
+                    // .replace(/\[[ib]\:\s*]/g, '')
+                    .replace(/\[[ib]\:(\[[ib]\:\s*\]|\s*)\]\n/g, '')
+                    .replace(/\n\n+/g, '\n\n');
 
                 if (finalResult) {
                     outputArea.innerText = finalResult;
